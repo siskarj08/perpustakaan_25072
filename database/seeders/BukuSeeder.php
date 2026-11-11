@@ -47,3 +47,4 @@ class BukuSeeder extends Seeder
     }
 }
 
+

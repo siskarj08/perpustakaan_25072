@@ -163,12 +163,6 @@
             @endif
 
         </div>
-
-        <!-- FOOTER -->
-        <div class="mt-8 text-center text-sm text-gray-400">
-            © 2026 Perpustakaan Digital 250441100072
-        </div>
-
     </div>
 
 </div>

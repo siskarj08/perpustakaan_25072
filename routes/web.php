@@ -18,20 +18,32 @@ Route::get('/', function () {
 
 Route::middleware(['auth'])->group(function () {
 
+    Route::get('/uji-error', function () {
+        throw new RuntimeException('Pengujian konfigurasi APP_DEBUG');
+    });
+
+    // Pencarian buku (Pengujian SQL Injection)
+    Route::get('/buku-cari', [BukuController::class, 'cari'])
+        ->name('buku.cari');
+
     // Dashboard berdasarkan role
     Route::get('/dashboard', function () {
 
-        $role = auth()->user()->role;
+        $user = auth()->user();
 
-        if ($role === 'admin') {
+        if ($user->hasRole('admin')) {
             return redirect()->route('admin.dashboard');
         }
 
-        if ($role === 'petugas') {
+        if ($user->hasRole('petugas')) {
             return redirect()->route('petugas.dashboard');
         }
 
-        return redirect()->route('siswa.dashboard');
+        if ($user->hasRole('siswa')) {
+            return redirect()->route('siswa.dashboard');
+        }
+
+        abort(403, 'Role pengguna tidak ditemukan.');
 
     })->name('dashboard');
 
@@ -81,40 +93,43 @@ Route::middleware(['auth'])->group(function () {
             ])->name('peminjaman.kembali');
         });
 
+    Route::middleware(['can:kelola-buku'])->group(function () {
 
-    Route::middleware(['role:admin|petugas'])->group(function () {
+        // Form tambah buku
+        Route::get('/buku/create', function () {
+            return view('buku.form');
+        })->name('buku.form');
 
-        Route::middleware(['permission:tambah buku'])->group(function () {
+        // Form ubah buku
+        Route::get('/buku/{id}/ubah', function ($id) {
+            return view('buku.form', compact('id'));
+        })->name('buku.form.ubah');
 
-            Route::get('/tambah', function () {
-                return view('buku.form');
-            })->name('buku.form');
-
-            Route::get('/ubah/{id}', function ($id) {
-                return view('buku.form', compact('id'));
-            })->name('buku.form.ubah');
-
-        });
+        // Hapus buku
+        Route::delete('/buku/{buku}', [
+            BukuController::class,
+            'destroy'
+        ])->name('buku.hapus');
 
     });
 
     Route::middleware(['role:admin|petugas|siswa'])->group(function () {
 
-        // Daftar buku
-        Route::get('/buku', function () {
-            return view('buku.index');
-        })->name('buku.index');
+
+        Route::get('/buku', [BukuController::class, 'index'])
+            ->name('buku.index');
 
         // Detail buku
-        Route::get('/buku/{id}', function ($id) {
-
-            $databuku = \App\Models\Buku::with('kategori')->findOrFail($id);
-
-            return view('buku.lihat', compact('databuku'));
-
-        })->name('lihat.buku');
+        Route::get('/buku/{id}', [BukuController::class, 'lihat'])
+            ->whereNumber('id')
+            ->name('lihat.buku');
 
     });
+
+    Route::get('/peminjaman/{id}', [
+            SiswaPeminjamanController::class,
+            'show'
+        ])->name('peminjaman.show');
 
     Route::middleware(['role:siswa'])
         ->prefix('siswa')
@@ -134,7 +149,6 @@ Route::middleware(['auth'])->group(function () {
                 SiswaPeminjamanController::class,
                 'store'
             ])->name('peminjaman.store');
-
         });
 
     Route::get('/profile', [ProfileController::class, 'edit'])
@@ -150,3 +164,5 @@ Route::middleware(['auth'])->group(function () {
 
 
 require __DIR__.'/auth.php';
+
+

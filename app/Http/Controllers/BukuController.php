@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Buku;
 use App\Models\Kategori;
+use Illuminate\Support\Facades\DB;
 
 class BukuController extends Controller
 {
@@ -12,7 +13,11 @@ class BukuController extends Controller
     {
         $kategoris = Kategori::all();
 
-        return view('buku.index', compact('kategoris'));
+        $bukus = Buku::with('kategori')
+            ->orderBy('id', 'asc')
+            ->get();
+
+        return view('buku.index', compact('kategoris', 'bukus'));
     }
 
     public function lihat($id)
@@ -45,7 +50,27 @@ class BukuController extends Controller
 
         return view('buku.form', compact('buku', 'kategoris'));
     }
+
+    public function cari(Request $request)
+    {
+        $judul = $request->judul;
+
+        $buku = DB::select(
+            "SELECT * FROM bukus WHERE judul = ?",
+            [$judul]
+        );
+
+        return response()->json($buku);
+    }
+
+    public function destroy($buku)
+    {
+        $dataBuku = Buku::findOrFail($buku);
+
+        $dataBuku->delete();
+
+        return redirect()
+            ->route('buku.index')
+            ->with('success', 'Buku berhasil dihapus!');
+    }
 }
-
-
-

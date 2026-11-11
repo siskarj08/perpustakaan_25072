@@ -70,6 +70,7 @@
                                     <th class="px-6 py-4">Tanggal Pinjam</th>
                                     <th class="px-6 py-4">Tanggal Kembali</th>
                                     <th class="px-6 py-4">Status</th>
+                                    <th class="px-6 py-4">Aksi</th>
                                 </tr>
                             </thead>
 
@@ -109,6 +110,13 @@
                                                     Dipinjam
                                                 </span>
                                             @endif
+                                        </td>
+
+                                        <td class="px-6 py-4">
+                                            <a href="{{ route('peminjaman.show', $peminjaman->id) }}"
+                                                class="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-blue-700">
+                                                Detail
+                                            </a>
                                         </td>
 
                                     </tr>

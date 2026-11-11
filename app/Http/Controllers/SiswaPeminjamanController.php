@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Peminjaman;
 use App\Models\Buku;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class SiswaPeminjamanController extends Controller
 {
@@ -65,6 +66,16 @@ class SiswaPeminjamanController extends Controller
                 'success',
                 'Buku "' . $buku->judul . '" berhasil dipinjam! Silakan cek riwayat peminjaman.'
             );
+    }
+
+    public function show($id)
+    {
+        $peminjaman = Peminjaman::findOrFail($id);
+
+        // Memeriksa hak akses menggunakan Policy
+        Gate::authorize('view', $peminjaman);
+
+        return view('siswa.detail-peminjaman', compact('peminjaman'));
     }
 }
 

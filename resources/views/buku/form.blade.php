@@ -191,8 +191,7 @@
     const judulForm = document.getElementById('judul-form');
     const deskripsiForm = document.getElementById('deskripsi-form');
 
-    const parameter = new URLSearchParams(window.location.search);
-    const idBuku = parameter.get('id');
+    const idBuku = @json($id ?? null);
 
     // Menampilkan pesan
     function tampilkanPesan(teks, tipe) {

@@ -22,6 +22,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+    
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
@@ -29,9 +30,20 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = auth()->user();
-        
+
+        // Jika pengguna adalah siswa, daftarkan otomatis sebagai anggota
+        if ($user->hasRole('siswa')) {
+            $user->anggota()->firstOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'nama' => $user->name,
+                    'email' => $user->email,
+                ]
+            );
+        }
+
         if ($user->hasRole('admin')) {
-        return redirect()->route('admin.dashboard');
+            return redirect()->route('admin.dashboard');
         }
 
         if ($user->hasRole('petugas')) {
@@ -55,6 +67,4 @@ class AuthenticatedSessionController extends Controller
         return redirect('/');
     }
 }
-
-
 
