@@ -2,7 +2,8 @@
 
 <div class="kartu-buku">
     <h3 class="text-lg font-bold text-gray-800">
-        {{  $judul  }}
+        {{-- {!!  $judul  !!} --}}
+        {{   $judul   }}
     </h3>
 
     <p class="mt-2 text-sm text-gray-500">

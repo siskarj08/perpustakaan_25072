@@ -63,6 +63,17 @@ class BukuController extends Controller
         return response()->json($buku);
     }
 
+    // public function cari(Request $request)
+    // {
+    //     $judul = $request->query('judul');
+
+    //     $buku = DB::select(
+    //         "SELECT * FROM bukus WHERE judul = '$judul'"
+    //     );
+
+    //     return response()->json($buku);
+    // }
+
     public function destroy($buku)
     {
         $dataBuku = Buku::findOrFail($buku);

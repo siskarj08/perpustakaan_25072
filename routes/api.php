@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\BukuController;
 use App\Http\Controllers\Api\RekapController;
 
-Route::apiResource('buku', BukuController::class);
+// Route::apiResource('buku', BukuController::class);
 
 Route::get('/rekap/buku-per-kategori', [RekapController::class, 'bukuPerKategori']
 );
