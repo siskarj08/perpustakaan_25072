@@ -103,15 +103,22 @@ Route::middleware(['auth'])->group(function () {
                 ->name('laporan');
         });
 
-    // CRUD buku dipakai bersama oleh admin dan petugas.
+    Route::get('/buku/create', function () {
+        $user = auth()->user();
+
+        if (! $user->can('kelola-buku') || ! $user->can('kelola data buku')) {
+            return redirect()->route('buku.index')
+                ->with('error', 'Anda tidak memiliki izin untuk menambah buku.');
+        }
+
+        $kategoris = Kategori::all();
+
+        return view('buku.form', compact('kategoris'));
+    })->name('buku.form');
+
+    // Perubahan data buku tetap dibatasi untuk admin dan petugas.
     Route::middleware(['role:admin|petugas', 'can:kelola data buku'])
         ->group(function () {
-            Route::get('/buku/create', function () {
-                $kategoris = Kategori::all();
-
-                return view('buku.form', compact('kategoris'));
-            })->name('buku.form');
-
             Route::post('/buku', [BukuController::class, 'store'])
                 ->name('buku.store');
 
