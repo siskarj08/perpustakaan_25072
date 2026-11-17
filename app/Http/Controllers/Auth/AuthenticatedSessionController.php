@@ -22,7 +22,6 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
@@ -30,9 +29,16 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = auth()->user();
+        $role = $user->role;
+
+        if (! in_array($role, ['admin', 'petugas', 'siswa'], true)) {
+            abort(403, 'Role pengguna tidak ditemukan.');
+        }
+
+        $user->syncRoles([$role]);
 
         // Jika pengguna adalah siswa, daftarkan otomatis sebagai anggota
-        if ($user->hasRole('siswa')) {
+        if ($role === 'siswa') {
             $user->anggota()->firstOrCreate(
                 ['user_id' => $user->id],
                 [
@@ -42,15 +48,7 @@ class AuthenticatedSessionController extends Controller
             );
         }
 
-        if ($user->hasRole('admin')) {
-            return redirect()->route('admin.dashboard');
-        }
-
-        if ($user->hasRole('petugas')) {
-            return redirect()->route('petugas.dashboard');
-        }
-
-        return redirect()->route('siswa.dashboard');
+        return redirect()->route($role.'.dashboard');
     }
 
     /**
@@ -67,4 +65,3 @@ class AuthenticatedSessionController extends Controller
         return redirect('/');
     }
 }
-

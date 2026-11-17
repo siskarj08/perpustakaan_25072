@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
             ]
         );
         $admin->forceFill(['role' => 'admin'])->save();
-        $admin->assignRole('admin');
+        $admin->syncRoles(['admin']);
 
         // 2. Akun Petugas
         $petugas = User::firstOrCreate(
@@ -30,7 +30,7 @@ class UserSeeder extends Seeder
             ]
         );
         $petugas->forceFill(['role' => 'petugas'])->save();
-        $petugas->assignRole('petugas');
+        $petugas->syncRoles(['petugas']);
 
         // 3. Akun Mahasiswa
         $siswa = User::firstOrCreate(
@@ -41,7 +41,7 @@ class UserSeeder extends Seeder
             ]
         );
         $siswa->forceFill(['role' => 'siswa'])->save();
-        $siswa->assignRole('siswa');
+        $siswa->syncRoles(['siswa']);
 
         $siswa = User::firstOrCreate(
             ['email' => 'ikoy@gmail.com'],
@@ -51,6 +51,6 @@ class UserSeeder extends Seeder
             ]
         );
         $siswa->forceFill(['role' => 'siswa'])->save();
-        $siswa->assignRole('siswa');
+        $siswa->syncRoles(['siswa']);
     }
 }

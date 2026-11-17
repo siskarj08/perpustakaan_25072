@@ -18,13 +18,13 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $this->call([
+            RolePermissionSeeder::class,
+            RoleSeeder::class,
             UserSeeder::class,
             KategoriSeeder::class,
             AnggotaSeeder::class,
             BukuSeeder::class,
             PeminjamanSeeder::class,
-            RolePermissionSeeder::class,
-            RoleSeeder::class,
         ]);
     }
 }

@@ -30,16 +30,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         $user = auth()->user();
 
-        if ($user->hasRole('admin')) {
-            return redirect()->route('admin.dashboard');
-        }
-
-        if ($user->hasRole('petugas')) {
-            return redirect()->route('petugas.dashboard');
-        }
-
-        if ($user->hasRole('siswa')) {
-            return redirect()->route('siswa.dashboard');
+        if (in_array($user->role, ['admin', 'petugas', 'siswa'], true)) {
+            return redirect()->route($user->role.'.dashboard');
         }
 
         abort(403, 'Role pengguna tidak ditemukan.');
@@ -104,12 +96,12 @@ Route::middleware(['auth'])->group(function () {
         });
 
     Route::get('/buku/create', function () {
-    $kategoris = Kategori::all();
+        $kategoris = Kategori::all();
 
         return view('buku.form', compact('kategoris'));
     })
-    ->middleware(['role:admin|petugas', 'can:kelola data buku'])
-    ->name('buku.form');
+        ->middleware(['role:admin|petugas', 'can:kelola data buku'])
+        ->name('buku.form');
 
     // Perubahan data buku tetap dibatasi untuk admin dan petugas.
     Route::middleware(['role:admin|petugas', 'can:kelola data buku'])

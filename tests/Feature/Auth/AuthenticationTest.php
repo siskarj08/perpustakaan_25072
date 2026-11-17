@@ -1,6 +1,11 @@
 <?php
 
 use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
+
+beforeEach(function () {
+    $this->seed(RolePermissionSeeder::class);
+});
 
 test('login screen can be rendered', function () {
     $response = $this->get('/login');
@@ -17,7 +22,23 @@ test('users can authenticate using the login screen', function () {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('dashboard', absolute: false));
+    $response->assertRedirect(route('siswa.dashboard'));
+});
+
+test('login uses the user role and removes stale role assignments', function () {
+    $user = User::factory()->create([
+        'email' => 'petugas@example.com',
+        'role' => 'petugas',
+    ]);
+    $user->assignRole('admin', 'siswa');
+
+    $response = $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'password',
+    ]);
+
+    $response->assertRedirect(route('petugas.dashboard'));
+    expect($user->fresh()->getRoleNames()->all())->toBe(['petugas']);
 });
 
 test('users can not authenticate with invalid password', function () {
