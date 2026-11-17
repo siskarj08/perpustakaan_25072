@@ -82,36 +82,29 @@ Route::middleware(['auth'])->group(function () {
     // =========================
     // CRUD BUKU ADMIN
     // =========================
-    Route::middleware([
-        'role:admin',
-        'can:kelola data buku'
-    ])->group(function () {
+        Route::middleware(['role:admin', 'can:kelola data buku'])
+        ->group(function () {
 
-        // Form tambah buku
-        Route::get('/buku/create', function () {
-            $kategoris = Kategori::all();
+            Route::get('/buku/create', function () {
+                $kategoris = \App\Models\Kategori::all();
 
-            return view('buku.form', compact('kategoris'));
-        })->name('buku.form');
+                return view('buku.form', compact('kategoris'));
+            })->name('buku.form');
 
-        // Simpan buku baru
-        Route::post('/buku', [BukuController::class, 'store'])
-            ->name('buku.store');
+            Route::post('/buku', [BukuController::class, 'store'])
+                ->name('buku.store');
 
-        // Form ubah buku
-        Route::get('/buku/{id}/ubah', [BukuController::class, 'ubah'])
-            ->whereNumber('id')
-            ->name('buku.form.ubah');
+            Route::get('/buku/{id}/ubah', [BukuController::class, 'ubah'])
+                ->whereNumber('id')
+                ->name('buku.form.ubah');
 
-        // Proses ubah buku
-        Route::put('/buku/{id}', [BukuController::class, 'update'])
-            ->whereNumber('id')
-            ->name('buku.update');
+            Route::put('/buku/{id}', [BukuController::class, 'update'])
+                ->whereNumber('id')
+                ->name('buku.update');
 
-        // Hapus buku
-        Route::delete('/buku/{buku}', [BukuController::class, 'destroy'])
-            ->name('buku.hapus');
-    });
+            Route::delete('/buku/{buku}', [BukuController::class, 'destroy'])
+                ->name('buku.hapus');
+        });
 
 
     // =========================
@@ -132,33 +125,31 @@ Route::middleware(['auth'])->group(function () {
                 ->name('buku.index');
 
             // CRUD buku petugas
-            Route::middleware(['can:kelola data buku'])->group(function () {
+            Route::middleware(['role:petugas', 'can:kelola data buku'])
+                ->prefix('petugas')
+                ->name('petugas.')
+                ->group(function () {
 
-                // Form tambah buku
-                Route::get('/buku/create', function () {
-                    $kategoris = Kategori::all();
+                    Route::get('/buku/create', function () {
+                        $kategoris = \App\Models\Kategori::all();
 
-                    return view('buku.form', compact('kategoris'));
-                })->name('buku.create');
+                        return view('buku.form', compact('kategoris'));
+                    })->name('buku.create');
 
-                // Simpan buku
-                Route::post('/buku', [BukuController::class, 'store'])
-                    ->name('buku.store');
+                    Route::post('/buku', [BukuController::class, 'store'])
+                        ->name('buku.store');
 
-                // Form ubah buku
-                Route::get('/buku/{id}/ubah', [BukuController::class, 'ubah'])
-                    ->whereNumber('id')
-                    ->name('buku.edit');
+                    Route::get('/buku/{id}/ubah', [BukuController::class, 'ubah'])
+                        ->whereNumber('id')
+                        ->name('buku.edit');
 
-                // Update buku
-                Route::put('/buku/{id}', [BukuController::class, 'update'])
-                    ->whereNumber('id')
-                    ->name('buku.update');
+                    Route::put('/buku/{id}', [BukuController::class, 'update'])
+                        ->whereNumber('id')
+                        ->name('buku.update');
 
-                // Hapus buku
-                Route::delete('/buku/{buku}', [BukuController::class, 'destroy'])
-                    ->name('buku.destroy');
-            });
+                    Route::delete('/buku/{buku}', [BukuController::class, 'destroy'])
+                        ->name('buku.destroy');
+                });
 
             Route::get('/peminjaman', [AdminPeminjamanController::class, 'index'])
                 ->middleware('can:kelola peminjaman')
