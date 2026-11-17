@@ -151,9 +151,7 @@
                     {{-- TOMBOL --}}
                     <div class="flex flex-col-reverse gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:justify-end">
 
-                        <a href="{{ request()->routeIs('petugas.*')
-                            ? route('petugas.buku.index')
-                            : route('buku.index') }}"
+                        <a href="{{ route('buku.index') }}"
                             class="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-600 transition hover:bg-slate-100">
                             Kembali
                         </a>
@@ -194,19 +192,11 @@
     const pesan = document.getElementById('pesan');
     const tombol = document.getElementById('tombol-simpan');
 
-    // URL update berdasarkan role pengguna
+    // URL update buku menggunakan route bersama admin dan petugas.
     const urlUpdate = @json(
-        request()->routeIs('petugas.*')
-            ? route('petugas.buku.update', ['id' => $buku->id])
-            : route('buku.update', ['id' => $buku->id])
+        route('buku.update', ['id' => $buku->id])
     );
-
-    // URL kembali berdasarkan role pengguna
-    const urlKembali = @json(
-        request()->routeIs('petugas.*')
-            ? route('petugas.buku.index')
-            : route('buku.index')
-    );
+    const urlKembali = @json(route('buku.index'));
 
     form.addEventListener('submit', async function(event) {
         event.preventDefault();

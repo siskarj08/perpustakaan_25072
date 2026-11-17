@@ -1,15 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AdminLaporanController;
+use App\Http\Controllers\AdminPeminjamanController;
+use App\Http\Controllers\AdminPenggunaController;
+use App\Http\Controllers\BukuController;
+use App\Http\Controllers\PetugasDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SiswaDashboardController;
 use App\Http\Controllers\SiswaPeminjamanController;
-use App\Http\Controllers\AdminPenggunaController;
-use App\Http\Controllers\AdminPeminjamanController;
-use App\Http\Controllers\AdminLaporanController;
-use App\Http\Controllers\PetugasDashboardController;
-use App\Http\Controllers\BukuController;
 use App\Models\Kategori;
+use Illuminate\Support\Facades\Route;
 
 // Halaman utama
 Route::get('/', function () {
@@ -45,7 +45,6 @@ Route::middleware(['auth'])->group(function () {
         abort(403, 'Role pengguna tidak ditemukan.');
     })->name('dashboard');
 
-
     // =========================
     // ROUTE ADMIN
     // =========================
@@ -65,7 +64,7 @@ Route::middleware(['auth'])->group(function () {
 
             Route::patch('/pengguna/{user}/role', [
                 AdminPenggunaController::class,
-                'updateRole'
+                'updateRole',
             ])->middleware('can:kelola role pengguna')
                 ->name('pengguna.updateRole');
 
@@ -78,15 +77,37 @@ Route::middleware(['auth'])->group(function () {
                 ->name('laporan');
         });
 
-
     // =========================
-    // CRUD BUKU ADMIN
+    // ROUTE PETUGAS
     // =========================
-        Route::middleware(['role:admin', 'can:kelola data buku'])
+    Route::middleware(['role:petugas'])
+        ->prefix('petugas')
+        ->name('petugas.')
         ->group(function () {
+            Route::get('/dashboard', [PetugasDashboardController::class, 'index'])
+                ->middleware('can:akses dashboard petugas')
+                ->name('dashboard');
 
+            Route::get('/peminjaman', [AdminPeminjamanController::class, 'index'])
+                ->middleware('can:kelola peminjaman')
+                ->name('peminjaman');
+
+            Route::patch('/peminjaman/{peminjaman}/kembali', [
+                AdminPeminjamanController::class,
+                'pengembalian',
+            ])->middleware('can:kelola pengembalian')
+                ->name('peminjaman.kembali');
+
+            Route::get('/laporan', [AdminLaporanController::class, 'index'])
+                ->middleware('can:lihat laporan perpustakaan')
+                ->name('laporan');
+        });
+
+    // CRUD buku dipakai bersama oleh admin dan petugas.
+    Route::middleware(['role:admin|petugas', 'can:kelola data buku'])
+        ->group(function () {
             Route::get('/buku/create', function () {
-                $kategoris = \App\Models\Kategori::all();
+                $kategoris = Kategori::all();
 
                 return view('buku.form', compact('kategoris'));
             })->name('buku.form');
@@ -106,73 +127,12 @@ Route::middleware(['auth'])->group(function () {
                 ->name('buku.hapus');
         });
 
-
-    // =========================
-    // ROUTE PETUGAS
-    // =========================
-    Route::middleware(['role:petugas'])
-        ->prefix('petugas')
-        ->name('petugas.')
-        ->group(function () {
-
-            Route::get('/dashboard', [PetugasDashboardController::class, 'index'])
-                ->middleware('can:akses dashboard petugas')
-                ->name('dashboard');
-
-            // Daftar buku
-            Route::get('/buku', [BukuController::class, 'index'])
-                ->middleware('can:lihat daftar buku')
-                ->name('buku.index');
-
-            // CRUD buku petugas
-            Route::middleware(['role:petugas', 'can:kelola data buku'])
-                ->prefix('petugas')
-                ->name('petugas.')
-                ->group(function () {
-
-                    Route::get('/buku/create', function () {
-                        $kategoris = \App\Models\Kategori::all();
-
-                        return view('buku.form', compact('kategoris'));
-                    })->name('buku.create');
-
-                    Route::post('/buku', [BukuController::class, 'store'])
-                        ->name('buku.store');
-
-                    Route::get('/buku/{id}/ubah', [BukuController::class, 'ubah'])
-                        ->whereNumber('id')
-                        ->name('buku.edit');
-
-                    Route::put('/buku/{id}', [BukuController::class, 'update'])
-                        ->whereNumber('id')
-                        ->name('buku.update');
-
-                    Route::delete('/buku/{buku}', [BukuController::class, 'destroy'])
-                        ->name('buku.destroy');
-                });
-
-            Route::get('/peminjaman', [AdminPeminjamanController::class, 'index'])
-                ->middleware('can:kelola peminjaman')
-                ->name('peminjaman');
-
-            Route::patch('/peminjaman/{peminjaman}/kembali', [
-                AdminPeminjamanController::class,
-                'pengembalian'
-            ])->middleware('can:kelola pengembalian')
-                ->name('peminjaman.kembali');
-
-            Route::get('/laporan', [AdminLaporanController::class, 'index'])
-                ->middleware('can:lihat laporan perpustakaan')
-                ->name('laporan');
-        });
-
-
     // =========================
     // DAFTAR DAN DETAIL BUKU
     // =========================
     Route::middleware([
         'role:admin|petugas|siswa',
-        'can:lihat daftar buku'
+        'can:lihat daftar buku',
     ])->group(function () {
 
         Route::get('/buku', [BukuController::class, 'index'])
@@ -183,13 +143,11 @@ Route::middleware(['auth'])->group(function () {
             ->name('lihat.buku');
     });
 
-
     // Detail peminjaman
     Route::get('/peminjaman/{id}', [
         SiswaPeminjamanController::class,
-        'show'
+        'show',
     ])->name('peminjaman.show');
-
 
     // =========================
     // ROUTE SISWA
@@ -204,16 +162,15 @@ Route::middleware(['auth'])->group(function () {
 
             Route::get('/riwayat-peminjaman', [
                 SiswaPeminjamanController::class,
-                'index'
+                'index',
             ])->middleware('can:lihat riwayat peminjaman sendiri')
                 ->name('peminjaman.index');
 
             Route::post('/peminjaman/{buku}', [
                 SiswaPeminjamanController::class,
-                'store'
+                'store',
             ])->name('peminjaman.store');
         });
-
 
     // =========================
     // PROFIL
