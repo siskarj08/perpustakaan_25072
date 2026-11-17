@@ -41,6 +41,19 @@ test('login uses the user role and removes stale role assignments', function () 
     expect($user->fresh()->getRoleNames()->all())->toBe(['petugas']);
 });
 
+test('active sessions with stale roles can access their assigned dashboard', function () {
+    $user = User::factory()->create([
+        'role' => 'petugas',
+    ]);
+    $user->assignRole('admin');
+
+    $this->actingAs($user)
+        ->get(route('petugas.dashboard'))
+        ->assertOk();
+
+    expect($user->fresh()->getRoleNames()->all())->toBe(['petugas']);
+});
+
 test('users can not authenticate with invalid password', function () {
     $user = User::factory()->create();
 

@@ -16,7 +16,7 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'sync.user.role'])->group(function () {
 
     Route::get('/uji-error', function () {
         throw new RuntimeException('Pengujian konfigurasi APP_DEBUG');
