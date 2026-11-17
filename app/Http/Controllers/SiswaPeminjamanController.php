@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Peminjaman;
 use App\Models\Buku;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class SiswaPeminjamanController extends Controller
 {
     // Menampilkan riwayat peminjaman siswa
     public function index()
     {
-        $anggota = auth()->user()->anggota;
+        $user = Auth::user();
+
+        $anggota = $user->anggota;
 
         if (!$anggota) {
             $peminjamans = collect();
