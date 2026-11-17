@@ -11,7 +11,7 @@ class PeminjamanSeeder extends Seeder
     {
         Peminjaman::updateOrCreate(
             [
-                'anggota_id' => 6,
+                'anggota_id' => 4,
                 'buku_id' => 1,
                 'tanggal_pinjam' => '2026-09-20',
             ],
@@ -22,7 +22,7 @@ class PeminjamanSeeder extends Seeder
 
         Peminjaman::updateOrCreate(
             [
-                'anggota_id' => 7,
+                'anggota_id' => 4,
                 'buku_id' => 3,
                 'tanggal_pinjam' => '2026-09-22',
             ],
@@ -43,3 +43,4 @@ class PeminjamanSeeder extends Seeder
         );
     }
 }
+
