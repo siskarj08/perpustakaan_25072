@@ -19,7 +19,7 @@ class SiswaPeminjamanController extends Controller
             ->latest('tanggal_pinjam')
             ->get();
 
-        return response()->json($peminjamans);
+        return view('siswa.peminjaman', compact('peminjamans'));
     }
 
     // Memproses peminjaman buku
