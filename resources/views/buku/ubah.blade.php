@@ -80,8 +80,11 @@
     const pesan = document.getElementById('pesan');
     const tombol = document.getElementById('tombol-simpan');
 
-    // ID buku diambil dari URL halaman
-    const idBuku = {{ $buku->id }};
+    // ID buku dari database
+    const idBuku = @json($buku->id);
+
+    // URL update dari Laravel
+    const urlUpdate = @json(route('buku.update', ['id' => $buku->id]));
 
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
@@ -98,30 +101,24 @@
                 tahun_terbit: Number(form.tahun_terbit.value)
             };
 
-            const response = await fetch(`/api/buku/${idBuku}`, {
+            const response = await fetch(urlUpdate, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': form.querySelector('[name="_token"]').value
                 },
-                body: JSON.stringify({
-                    judul: document.getElementById('judul').value,
-                    penulis: document.getElementById('penulis').value,
-                    tahun_terbit: document.getElementById('tahun_terbit').value,
-                    kategori_id: document.getElementById('kategori_id').value
-                })
+                body: JSON.stringify(data)
             });
 
-            const hasil = await response.json().catch(() => ({}));
+            const hasil = await response.json();
 
             if (!response.ok) {
                 const detail = hasil.errors
                     ? Object.values(hasil.errors).flat().join(' ')
                     : hasil.message;
 
-                throw new Error(
-                    detail || 'Gagal memperbarui buku.'
-                );
+                throw new Error(detail || 'Gagal memperbarui buku.');
             }
 
             pesan.className = 'pesan-form berhasil';
@@ -133,6 +130,7 @@
 
         } catch (error) {
             console.error(error);
+
             pesan.className = 'pesan-form gagal';
             pesan.textContent = error.message;
 

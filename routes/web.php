@@ -93,11 +93,14 @@ Route::middleware(['auth'])->group(function () {
             ])->name('peminjaman.kembali');
         });
 
+    
     Route::middleware(['can:kelola-buku'])->group(function () {
 
         // Form tambah buku
         Route::get('/buku/create', function () {
-            return view('buku.form');
+            $kategoris = \App\Models\Kategori::all();
+
+            return view('buku.form', compact('kategoris'));
         })->name('buku.form');
 
         // Simpan buku baru
@@ -105,12 +108,13 @@ Route::middleware(['auth'])->group(function () {
             ->name('buku.store');
 
         // Form ubah buku
-        Route::get('/buku/{id}/ubah', function ($id) {
-            return view('buku.form', compact('id'));
-        })->name('buku.form.ubah');
+        Route::get('/buku/{id}/ubah', [BukuController::class, 'ubah'])
+            ->whereNumber('id')
+            ->name('buku.form.ubah');
 
         // Proses ubah buku
         Route::put('/buku/{id}', [BukuController::class, 'update'])
+            ->whereNumber('id')
             ->name('buku.update');
 
         // Hapus buku

@@ -22,11 +22,12 @@ class BukuController extends Controller
 
     public function lihat($id)
     {
-        $databuku = Buku::with('kategori')->find($id);
+        $databuku = Buku::with('kategori')->findOrFail($id);
 
         return view('buku.lihat', compact('databuku'));
     }
 
+    // Menambahkan buku
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -36,19 +37,43 @@ class BukuController extends Controller
             'tahun_terbit' => 'required|integer|min:1000|max:' . date('Y'),
         ]);
 
-        Buku::create($validated);
+        $buku = Buku::create($validated);
 
-        return redirect()
-            ->route('buku.index', [], 303)
-            ->with('success', 'Buku berhasil ditambahkan!');
+        return response()->json([
+            'success' => true,
+            'message' => 'Buku berhasil ditambahkan!',
+            'data' => $buku
+        ], 201);
     }
 
+    // Menampilkan form ubah buku
     public function ubah($id)
     {
         $buku = Buku::findOrFail($id);
         $kategoris = Kategori::all();
 
         return view('buku.form', compact('buku', 'kategoris'));
+    }
+
+    // Memperbarui buku
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'kategori_id' => 'required|exists:kategoris,id',
+            'judul' => 'required|string|max:255',
+            'penulis' => 'required|string|max:255',
+            'tahun_terbit' => 'required|integer|min:1000|max:' . date('Y'),
+        ]);
+
+        $buku = Buku::findOrFail($id);
+
+        $buku->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Buku berhasil diperbarui!',
+            'data' => $buku
+        ]);
     }
 
     public function cari(Request $request)
@@ -62,17 +87,6 @@ class BukuController extends Controller
 
         return response()->json($buku);
     }
-
-    // public function cari(Request $request)
-    // {
-    //     $judul = $request->query('judul');
-
-    //     $buku = DB::select(
-    //         "SELECT * FROM bukus WHERE judul = '$judul'"
-    //     );
-
-    //     return response()->json($buku);
-    // }
 
     public function destroy($buku)
     {
