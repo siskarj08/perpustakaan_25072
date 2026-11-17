@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use App\Models\Peminjaman as PeminjamanModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
 
 class Anggota extends Model
 {
@@ -26,8 +26,6 @@ class Anggota extends Model
 
     public function peminjamans()
     {
-        return $this->hasMany(Peminjaman::class, 'anggota_id');
+        return $this->hasMany(PeminjamanModel::class, 'anggota_id');
     }
 }
-
-
