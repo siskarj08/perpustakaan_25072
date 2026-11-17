@@ -18,6 +18,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('AdminBaru123'),
             ]
         );
+        $admin->forceFill(['role' => 'admin'])->save();
         $admin->assignRole('admin');
 
         // 2. Akun Petugas
@@ -28,6 +29,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('PetugasBaru123'),
             ]
         );
+        $petugas->forceFill(['role' => 'petugas'])->save();
         $petugas->assignRole('petugas');
 
         // 3. Akun Mahasiswa
@@ -38,6 +40,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('siska1234'),
             ]
         );
+        $siswa->forceFill(['role' => 'siswa'])->save();
         $siswa->assignRole('siswa');
 
         $siswa = User::firstOrCreate(
@@ -47,6 +50,7 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('siska0809'),
             ]
         );
+        $siswa->forceFill(['role' => 'siswa'])->save();
         $siswa->assignRole('siswa');
     }
 }
