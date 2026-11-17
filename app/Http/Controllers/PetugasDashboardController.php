@@ -11,15 +11,19 @@ class PetugasDashboardController extends Controller
     public function index()
     {
         $totalBuku = Buku::count();
+
         $totalPengguna = User::count();
+
         $totalPeminjaman = Peminjaman::count();
 
-        $sedangDipinjam = Peminjaman::whereNull('tanggal_kembali')->count();
+        $sedangDipinjam = Peminjaman::whereNull('tanggal_kembali')
+            ->count();
 
-        $sudahDikembalikan = Peminjaman::whereNotNull('tanggal_kembali')->count();
+        $sudahDikembalikan = Peminjaman::whereNotNull('tanggal_kembali')
+            ->count();
 
         $peminjamanTerbaru = Peminjaman::with(['anggota', 'buku'])
-            ->latest()
+            ->latest('tanggal_pinjam')
             ->take(5)
             ->get();
 
