@@ -57,12 +57,11 @@ class SiswaPeminjamanController extends Controller
             );
     }
 
-    // Mencari atau membuat data anggota berdasarkan akun siswa
     private function resolveAnggotaFor(User $user): Anggota
     {
         return DB::transaction(function () use ($user) {
 
-            // Cari anggota yang sudah terhubung dengan akun
+            // Cari anggota berdasarkan user_id
             $anggota = Anggota::where('user_id', $user->id)
                 ->first();
 
@@ -70,7 +69,7 @@ class SiswaPeminjamanController extends Controller
                 return $anggota;
             }
 
-            // Cari anggota berdasarkan email yang belum terhubung
+            // Cari anggota berdasarkan email
             $anggota = Anggota::where('email', $user->email)
                 ->whereNull('user_id')
                 ->first();
@@ -82,12 +81,11 @@ class SiswaPeminjamanController extends Controller
                 return $anggota;
             }
 
-            // Buat anggota baru jika belum tersedia
+            // Buat anggota baru tanpa nomor telepon
             return Anggota::create([
                 'user_id' => $user->id,
                 'nama' => $user->name,
                 'email' => $user->email,
-                'no_telepon' => null,
             ]);
         });
     }

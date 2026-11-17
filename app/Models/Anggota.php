@@ -16,7 +16,6 @@ class Anggota extends Model
         'user_id',
         'nama',
         'email',
-        'no_telepon',
     ];
 
     public function user()
