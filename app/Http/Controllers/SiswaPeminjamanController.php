@@ -15,12 +15,18 @@ class SiswaPeminjamanController extends Controller
     // Menampilkan riwayat peminjaman siswa
     public function index()
     {
-        $anggota = $this->resolveAnggotaFor(Auth::user());
+        $user = Auth::user();
+        $anggota = Anggota::where('user_id', $user->id)->first()
+            ?? Anggota::where('email', $user->email)
+                ->whereNull('user_id')
+                ->first();
 
-        $peminjamans = Peminjaman::with('buku')
-            ->where('anggota_id', $anggota->id)
-            ->latest('tanggal_pinjam')
-            ->get();
+        $peminjamans = $anggota
+            ? Peminjaman::with('buku')
+                ->where('anggota_id', $anggota->id)
+                ->latest('tanggal_pinjam')
+                ->get()
+            : collect();
 
         return view('siswa.peminjaman', compact('peminjamans'));
     }
@@ -53,7 +59,7 @@ class SiswaPeminjamanController extends Controller
             ->route('buku.index')
             ->with(
                 'success',
-                'Buku "' . $buku->judul . '" berhasil dipinjam! Silakan cek riwayat peminjaman.'
+                'Buku "'.$buku->judul.'" berhasil dipinjam! Silakan cek riwayat peminjaman.'
             );
     }
 

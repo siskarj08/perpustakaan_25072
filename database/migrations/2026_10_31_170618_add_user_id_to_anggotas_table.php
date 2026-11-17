@@ -8,24 +8,25 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('anggotas', function (Blueprint $table) {
-            $table->foreignId('user_id')
-                ->nullable()
-                ->unique()
-                ->constrained('users')
-                ->nullOnDelete();
-        });
+        if (! Schema::hasColumn('anggotas', 'user_id')) {
+            Schema::table('anggotas', function (Blueprint $table) {
+                $table->foreignId('user_id')
+                    ->nullable()
+                    ->unique()
+                    ->constrained('users')
+                    ->nullOnDelete();
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('anggotas', function (Blueprint $table) {
-            $table->dropForeign(['user_id']);
-            $table->dropUnique(['user_id']);
-            $table->dropColumn('user_id');
-        });
+        if (Schema::hasColumn('anggotas', 'user_id')) {
+            Schema::table('anggotas', function (Blueprint $table) {
+                $table->dropForeign(['user_id']);
+                $table->dropUnique(['user_id']);
+                $table->dropColumn('user_id');
+            });
+        }
     }
 };
-
-
-
