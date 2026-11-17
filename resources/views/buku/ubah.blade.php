@@ -18,10 +18,8 @@
                 <label for="kategori_id">Kategori</label>
                 <select name="kategori_id" id="kategori_id" required>
                     @foreach ($kategoris as $kategori)
-                        <option
-                            value="{{ $kategori->id }}"
-                            {{ $buku->kategori_id == $kategori->id
-                                ? 'selected' : '' }}>
+                        <option value="{{ $kategori->id }}"
+                            {{ $buku->kategori_id == $kategori->id ? 'selected' : '' }}>
                             {{ $kategori->nama }}
                         </option>
                     @endforeach
@@ -30,8 +28,7 @@
 
             <div class="form-group">
                 <label for="judul">Judul Buku</label>
-                <input
-                    type="text"
+                <input type="text"
                     name="judul"
                     id="judul"
                     value="{{ $buku->judul }}"
@@ -40,8 +37,7 @@
 
             <div class="form-group">
                 <label for="penulis">Penulis</label>
-                <input
-                    type="text"
+                <input type="text"
                     name="penulis"
                     id="penulis"
                     value="{{ $buku->penulis }}"
@@ -50,8 +46,7 @@
 
             <div class="form-group">
                 <label for="tahun_terbit">Tahun Terbit</label>
-                <input
-                    type="number"
+                <input type="number"
                     name="tahun_terbit"
                     id="tahun_terbit"
                     value="{{ $buku->tahun_terbit }}"
@@ -68,29 +63,29 @@
         <p id="pesan" class="pesan-form"></p>
 
         <nav class="nav-form nav-form-bawah">
-            <a href="{{ route('buku.index') }}" class="btn-kembali">
+            <a href="{{ request()->routeIs('petugas.*')
+                ? route('petugas.buku.index')
+                : route('buku.index') }}"
+                class="btn-kembali">
                 &larr; Kembali ke Daftar Buku
             </a>
         </nav>
     </div>
 </div>
-    
+
 <script>
     const form = document.getElementById('form-buku');
     const pesan = document.getElementById('pesan');
     const tombol = document.getElementById('tombol-simpan');
 
-    // ID buku yang sedang diubah
-    const idBuku = @json($buku->id);
-
-    // Menentukan route berdasarkan role pengguna
+    // URL update berdasarkan role
     const urlUpdate = @json(
         request()->routeIs('petugas.*')
             ? route('petugas.buku.update', ['id' => $buku->id])
             : route('buku.update', ['id' => $buku->id])
     );
 
-    // URL kembali ke daftar buku
+    // URL kembali berdasarkan role
     const urlKembali = @json(
         request()->routeIs('petugas.*')
             ? route('petugas.buku.index')
@@ -106,10 +101,10 @@
 
         try {
             const data = {
-                kategori_id: Number(form.kategori_id.value),
-                judul: form.judul.value.trim(),
-                penulis: form.penulis.value.trim(),
-                tahun_terbit: Number(form.tahun_terbit.value)
+                kategori_id: Number(form.elements['kategori_id'].value),
+                judul: form.elements['judul'].value.trim(),
+                penulis: form.elements['penulis'].value.trim(),
+                tahun_terbit: Number(form.elements['tahun_terbit'].value)
             };
 
             const response = await fetch(urlUpdate, {
@@ -133,7 +128,7 @@
             }
 
             pesan.className = 'pesan-form berhasil';
-            pesan.textContent = 'Buku berhasil diperbarui!';
+            pesan.textContent = hasil.message || 'Buku berhasil diperbarui!';
 
             setTimeout(() => {
                 window.location.href = urlKembali;

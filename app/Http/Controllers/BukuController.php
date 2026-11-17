@@ -52,7 +52,7 @@ class BukuController extends Controller
         $buku = Buku::findOrFail($id);
         $kategoris = Kategori::all();
 
-        return view('buku.form', compact('buku', 'kategoris'));
+        return view('buku.ubah', compact('buku', 'kategoris'));
     }
 
     // Memperbarui buku
