@@ -104,17 +104,12 @@ Route::middleware(['auth'])->group(function () {
         });
 
     Route::get('/buku/create', function () {
-        $user = auth()->user();
-
-        if (! $user->can('kelola-buku') || ! $user->can('kelola data buku')) {
-            return redirect()->route('buku.index')
-                ->with('error', 'Anda tidak memiliki izin untuk menambah buku.');
-        }
-
-        $kategoris = Kategori::all();
+    $kategoris = Kategori::all();
 
         return view('buku.form', compact('kategoris'));
-    })->name('buku.form');
+    })
+    ->middleware(['role:admin|petugas', 'can:kelola data buku'])
+    ->name('buku.form');
 
     // Perubahan data buku tetap dibatasi untuk admin dan petugas.
     Route::middleware(['role:admin|petugas', 'can:kelola data buku'])

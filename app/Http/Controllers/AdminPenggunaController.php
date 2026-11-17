@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class AdminPenggunaController extends Controller
 {
@@ -13,21 +17,24 @@ class AdminPenggunaController extends Controller
         return view('admin.pengguna', compact('pengguna'));
     }
 
-     public function updateRole(Request $request, User $user)
+    public function updateRole(Request $request, User $user): RedirectResponse
     {
-        // Validasi role
-        $request->validate([
-            'role' => 'required|in:admin,petugas,siswa',
+        $validated = $request->validate([
+            'role' => [
+                'required',
+                'string',
+                Rule::exists('roles', 'name')->where('guard_name', 'web'),
+            ],
         ]);
 
-        // Mencegah admin mengubah role akunnya sendiri
-        if ($user->id === auth()->id()) {
+        if ($user->is(auth()->user())) {
             return back()->with('error', 'Kamu tidak bisa mengubah role akun sendiri.');
         }
 
-        // Simpan perubahan role
-        $user->role = $request->role;
-        $user->save();
+        DB::transaction(function () use ($user, $validated): void {
+            $user->forceFill(['role' => $validated['role']])->save();
+            $user->syncRoles([$validated['role']]);
+        });
 
         return back()->with('success', 'Role pengguna berhasil diperbarui.');
     }
