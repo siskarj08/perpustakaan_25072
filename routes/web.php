@@ -123,30 +123,25 @@ Route::middleware(['auth'])->group(function () {
     
     Route::middleware(['can:kelola-buku'])->group(function () {
 
-        // Form tambah buku
         Route::get('/buku/create', function () {
             $kategoris = \App\Models\Kategori::all();
 
             return view('buku.form', compact('kategoris'));
-        })->name('buku.form');
+        })->name('buku.create');
 
-        // Simpan buku baru
         Route::post('/buku', [BukuController::class, 'store'])
             ->name('buku.store');
 
-        // Form ubah buku
         Route::get('/buku/{id}/ubah', [BukuController::class, 'ubah'])
             ->whereNumber('id')
-            ->name('buku.form.ubah');
+            ->name('buku.edit');
 
-        // Proses ubah buku
         Route::put('/buku/{id}', [BukuController::class, 'update'])
             ->whereNumber('id')
             ->name('buku.update');
 
-        // Hapus buku
         Route::delete('/buku/{buku}', [BukuController::class, 'destroy'])
-            ->name('buku.hapus');
+            ->name('buku.destroy');
     });
 
     Route::middleware(['role:admin|petugas|siswa'])->group(function () {
