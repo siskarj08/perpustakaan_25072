@@ -47,6 +47,6 @@ class User extends Authenticatable
     public function anggota()
     {
         return $this->hasOne(Anggota::class, 'user_id', 'id');
-    }   
+    } 
 }
 

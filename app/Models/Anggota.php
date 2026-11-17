@@ -26,6 +26,8 @@ class Anggota extends Model
 
     public function peminjamans()
     {
-        return $this->hasMany(Peminjaman::class);
+        return $this->hasMany(Peminjaman::class, 'anggota_id');
     }
 }
+
+
