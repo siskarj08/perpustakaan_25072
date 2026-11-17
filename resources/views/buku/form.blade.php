@@ -285,8 +285,8 @@
             const sedangMengubah = Boolean(idBuku);
 
             const url = sedangMengubah
-                ? `/api/buku/${encodeURIComponent(idBuku)}`
-                : '/api/buku';
+                ? `/buku/${encodeURIComponent(idBuku)}`
+                : '/buku';
 
             const response = await fetch(url, {
                 method: sedangMengubah ? 'PUT' : 'POST',

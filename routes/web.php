@@ -100,17 +100,22 @@ Route::middleware(['auth'])->group(function () {
             return view('buku.form');
         })->name('buku.form');
 
+        // Simpan buku baru
+        Route::post('/buku', [BukuController::class, 'store'])
+            ->name('buku.store');
+
         // Form ubah buku
         Route::get('/buku/{id}/ubah', function ($id) {
             return view('buku.form', compact('id'));
         })->name('buku.form.ubah');
 
-        // Hapus buku
-        Route::delete('/buku/{buku}', [
-            BukuController::class,
-            'destroy'
-        ])->name('buku.hapus');
+        // Proses ubah buku
+        Route::put('/buku/{id}', [BukuController::class, 'update'])
+            ->name('buku.update');
 
+        // Hapus buku
+        Route::delete('/buku/{buku}', [BukuController::class, 'destroy'])
+            ->name('buku.hapus');
     });
 
     Route::middleware(['role:admin|petugas|siswa'])->group(function () {

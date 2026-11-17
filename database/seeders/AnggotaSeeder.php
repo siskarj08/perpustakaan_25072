@@ -9,25 +9,20 @@ class AnggotaSeeder extends Seeder
 {
     public function run(): void
     {
-        Anggota::factory()->create([
-            'id' => 1,
-            'nama' => 'Siska',
-            'email' => 'siska@gmail.com',
-            'no_telepon' => '081234567890',
-        ]);
+        Anggota::updateOrCreate(
+            ['email' => 'siska@gmail.com'],
+            [
+                'nama' => 'Siska',
+                'no_telepon' => '081234567890',
+            ]
+        );
 
-        Anggota::factory()->create([
-            'id' => 2,
-            'nama' => 'Chiko',
-            'email' => 'chiko@gmail.com',
-            'no_telepon' => '081234567891',
-        ]);
-
-        Anggota::factory()->create([
-            'id' => 3,
-            'nama' => 'Piyo',
-            'email' => 'piyo@gmail.com',
-            'no_telepon' => '081234567892',
-            ]);
+        Anggota::updateOrCreate(
+            ['email' => 'ikoy@gmail.com'],
+            [
+                'nama' => 'Ikoyy',
+                'no_telepon' => '081234567891',
+            ]
+        );
     }
 }

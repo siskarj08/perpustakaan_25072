@@ -10,41 +10,49 @@ class BukuSeeder extends Seeder
 {
     public function run(): void
     {
-        Buku::factory()->create([
-            'kategori_id' => Kategori::where('nama', 'Trilogi')->first()->id,
-            'judul' => 'Bumi Manusia',
-            'penulis' => 'Pramoedya Ananta Toer',
-            'tahun_terbit' => 1980,
-        ]);
+        Buku::updateOrCreate(
+            ['judul' => 'Bumi Manusia'],
+            [
+                'kategori_id' => Kategori::where('nama', 'Trilogi')->firstOrFail()->id,
+                'penulis' => 'Pramoedya Ananta Toer',
+                'tahun_terbit' => 1980,
+            ]
+        );
 
-        Buku::factory()->create([
-            'kategori_id' => Kategori::where('nama', 'Fantasi')->first()->id,
-            'judul' => 'Dikta dan Hukum',
-            'penulis' => 'Dhiaan Farah',
-            'tahun_terbit' => 2022,
-        ]);
+        Buku::updateOrCreate(
+            ['judul' => 'Dikta dan Hukum'],
+            [
+                'kategori_id' => Kategori::where('nama', 'Fantasi')->firstOrFail()->id,
+                'penulis' => 'Dhiaan Farah',
+                'tahun_terbit' => 2022,
+            ]
+        );
 
-        Buku::factory()->create([
-            'kategori_id' => Kategori::where('nama', 'Fiksi')->first()->id,
-            'judul' => '3672 MDPL',
-            'penulis' => 'Nurwina Sari',
-            'tahun_terbit' => 2022,
-        ]);
+        Buku::updateOrCreate(
+            ['judul' => '3672 MDPL'],
+            [
+                'kategori_id' => Kategori::where('nama', 'Fiksi')->firstOrFail()->id,
+                'penulis' => 'Nurwina Sari',
+                'tahun_terbit' => 2022,
+            ]
+        );
 
-        Buku::factory()->create([
-            'kategori_id' => Kategori::where('nama', 'Fiksi')->first()->id,
-            'judul' => 'Aroma Karsa',
-            'penulis' => 'Dee Lestari',
-            'tahun_terbit' => 2018,
-        ]);
+        Buku::updateOrCreate(
+            ['judul' => 'Aroma Karsa'],
+            [
+                'kategori_id' => Kategori::where('nama', 'Fiksi')->firstOrFail()->id,
+                'penulis' => 'Dee Lestari',
+                'tahun_terbit' => 2018,
+            ]
+        );
 
-        Buku::factory()->create([
-            'kategori_id' => Kategori::where('nama', 'Fiksi')->first()->id,
-            'judul' => 'SagaraS',
-            'penulis' => 'Tere Liye',
-            'tahun_terbit' => 2019,
-        ]);
+        Buku::updateOrCreate(
+            ['judul' => 'SagaraS'],
+            [
+                'kategori_id' => Kategori::where('nama', 'Fiksi')->firstOrFail()->id,
+                'penulis' => 'Tere Liye',
+                'tahun_terbit' => 2019,
+            ]
+        );
     }
 }
-
-
