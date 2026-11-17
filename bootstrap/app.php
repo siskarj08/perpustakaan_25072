@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Throwable;
+
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -23,7 +25,23 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+
+    $exceptions->report(function (Throwable $e): void {
+        error_log(
+            'LARAVEL_ERROR: ' .
+            get_class($e) .
+            ' | Pesan: ' . $e->getMessage() .
+            ' | File: ' . $e->getFile() .
+            ' | Baris: ' . $e->getLine()
         );
-    })->create();
+    });
+
+    $exceptions->shouldRenderJsonWhen(
+        fn (Request $request) =>
+            $request->is('api/*') || $request->expectsJson(),
+    );
+
+})
+    ->withProviders([
+        Spatie\Permission\PermissionServiceProvider::class,
+    ]);
