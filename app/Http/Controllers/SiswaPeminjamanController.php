@@ -5,16 +5,24 @@ namespace App\Http\Controllers;
 use App\Models\Peminjaman;
 use App\Models\Buku;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Log;
-use Throwable;
 
 class SiswaPeminjamanController extends Controller
 {
     // Menampilkan riwayat peminjaman siswa
     public function index()
     {
-        return response('CONTROLLER SISWA BERHASIL DIAKSES', 200);
+        $anggota = auth()->user()->anggota;
+
+        if (!$anggota) {
+            $peminjamans = collect();
+        } else {
+            $peminjamans = Peminjaman::with('buku')
+                ->where('anggota_id', $anggota->id)
+                ->latest('tanggal_pinjam')
+                ->get();
+        }
+
+        return view('siswa.peminjaman', compact('peminjamans'));
     }
 
     // Memproses peminjaman buku

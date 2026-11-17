@@ -25,23 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-
-    $exceptions->report(function (Throwable $e): void {
-        error_log(
-            'LARAVEL_ERROR: ' .
-            get_class($e) .
-            ' | Pesan: ' . $e->getMessage() .
-            ' | File: ' . $e->getFile() .
-            ' | Baris: ' . $e->getLine()
+        $exceptions->shouldRenderJsonWhen(
+            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
-    });
-
-    $exceptions->shouldRenderJsonWhen(
-        fn (Request $request) =>
-            $request->is('api/*') || $request->expectsJson(),
-    );
-
-})
-    ->withProviders([
-        Spatie\Permission\PermissionServiceProvider::class,
-    ]);
+    })->create();
