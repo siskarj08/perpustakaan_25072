@@ -2,20 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Peminjaman;
+use App\Models\Anggota;
 use App\Models\Buku;
+use App\Models\Peminjaman;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 
 class SiswaPeminjamanController extends Controller
 {
     // Menampilkan riwayat peminjaman siswa
-    public function index()
+    public function index(): View
     {
-        $anggota = auth()->user()->anggota;
+        $anggota = $this->resolveAnggotaFor(auth()->user());
 
-        $peminjamans = Peminjaman::with('buku')
-            ->where('anggota_id', $anggota->id)
+        $peminjamans = $anggota->peminjamans()
+            ->with('buku')
             ->latest('tanggal_pinjam')
             ->get();
 
@@ -25,15 +29,7 @@ class SiswaPeminjamanController extends Controller
     // Memproses peminjaman buku
     public function store(Buku $buku)
     {
-        $anggota = Auth::user()->anggota;
-
-        // Memastikan akun siswa terhubung dengan anggota
-        if (!$anggota) {
-            return back()->with(
-                'error',
-                'Data anggota belum terhubung dengan akun kamu.'
-            );
-        }
+        $anggota = $this->resolveAnggotaFor(Auth::user());
 
         // Memeriksa apakah buku masih dipinjam oleh siswa
         $sudahPinjam = Peminjaman::where('anggota_id', $anggota->id)
@@ -60,8 +56,36 @@ class SiswaPeminjamanController extends Controller
             ->route('buku.index')
             ->with(
                 'success',
-                'Buku "' . $buku->judul . '" berhasil dipinjam! Silakan cek riwayat peminjaman.'
+                'Buku "'.$buku->judul.'" berhasil dipinjam! Silakan cek riwayat peminjaman.'
             );
+    }
+
+    private function resolveAnggotaFor(User $user): Anggota
+    {
+        return DB::transaction(function () use ($user): Anggota {
+            $anggota = $user->anggota()->first();
+
+            if ($anggota) {
+                return $anggota;
+            }
+
+            $anggota = Anggota::query()
+                ->where('email', $user->email)
+                ->whereNull('user_id')
+                ->first();
+
+            if ($anggota) {
+                $anggota->user()->associate($user);
+                $anggota->save();
+
+                return $anggota;
+            }
+
+            return $user->anggota()->create([
+                'nama' => $user->name,
+                'email' => $user->email,
+            ]);
+        });
     }
 
     public function show($id)
@@ -74,4 +98,3 @@ class SiswaPeminjamanController extends Controller
         return view('siswa.detail-peminjaman', compact('peminjaman'));
     }
 }
-
