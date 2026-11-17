@@ -12,7 +12,7 @@
                 </div>
 
                 <h1 class="text-2xl font-bold text-white tracking-wide">
-                    Perpustakaan 250441100072
+                    Perpustakaan - 250441100072
                 </h1>
 
                 <p class="text-pink-100 text-sm mt-2">
