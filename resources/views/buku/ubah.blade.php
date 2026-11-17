@@ -74,17 +74,28 @@
         </nav>
     </div>
 </div>
-
+    
 <script>
     const form = document.getElementById('form-buku');
     const pesan = document.getElementById('pesan');
     const tombol = document.getElementById('tombol-simpan');
 
-    // ID buku dari database
+    // ID buku yang sedang diubah
     const idBuku = @json($buku->id);
 
-    // URL update dari Laravel
-    const urlUpdate = @json(route('buku.update', ['id' => $buku->id]));
+    // Menentukan route berdasarkan role pengguna
+    const urlUpdate = @json(
+        request()->routeIs('petugas.*')
+            ? route('petugas.buku.update', ['id' => $buku->id])
+            : route('buku.update', ['id' => $buku->id])
+    );
+
+    // URL kembali ke daftar buku
+    const urlKembali = @json(
+        request()->routeIs('petugas.*')
+            ? route('petugas.buku.index')
+            : route('buku.index')
+    );
 
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
@@ -125,7 +136,7 @@
             pesan.textContent = 'Buku berhasil diperbarui!';
 
             setTimeout(() => {
-                window.location.href = "{{ route('buku.index') }}";
+                window.location.href = urlKembali;
             }, 800);
 
         } catch (error) {

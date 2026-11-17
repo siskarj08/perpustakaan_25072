@@ -72,26 +72,53 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::middleware(['role:petugas'])
-        ->prefix('petugas')
-        ->name('petugas.')
-        ->group(function () {
+    ->prefix('petugas')
+    ->name('petugas.')
+    ->group(function () {
 
-            Route::get('/dashboard', [PetugasDashboardController::class, 'index'])
-                ->name('dashboard');
+        Route::get('/dashboard', [PetugasDashboardController::class, 'index'])
+            ->name('dashboard');
 
-            Route::resource('/buku', BukuController::class);
+        // Daftar buku
+        Route::get('/buku', [BukuController::class, 'index'])
+            ->name('buku.index');
 
-            Route::get('/peminjaman', [AdminPeminjamanController::class, 'index'])
-                ->name('peminjaman');
+        // Form tambah buku
+        Route::get('/buku/create', function () {
+            $kategoris = \App\Models\Kategori::all();
 
-            Route::get('/laporan', [AdminLaporanController::class, 'index'])
-                ->name('laporan');
+            return view('buku.form', compact('kategoris'));
+        })->name('buku.create');
 
-            Route::patch('/peminjaman/{peminjaman}/kembali', [
-                AdminPeminjamanController::class,
-                'pengembalian'
-            ])->name('peminjaman.kembali');
-        });
+        // Simpan buku
+        Route::post('/buku', [BukuController::class, 'store'])
+            ->name('buku.store');
+
+        // Form ubah buku
+        Route::get('/buku/{id}/ubah', [BukuController::class, 'ubah'])
+            ->whereNumber('id')
+            ->name('buku.edit');
+
+        // Proses ubah buku
+        Route::put('/buku/{id}', [BukuController::class, 'update'])
+            ->whereNumber('id')
+            ->name('buku.update');
+
+        // Hapus buku
+        Route::delete('/buku/{buku}', [BukuController::class, 'destroy'])
+            ->name('buku.destroy');
+
+        Route::get('/peminjaman', [AdminPeminjamanController::class, 'index'])
+            ->name('peminjaman');
+
+        Route::get('/laporan', [AdminLaporanController::class, 'index'])
+            ->name('laporan');
+
+        Route::patch('/peminjaman/{peminjaman}/kembali', [
+            AdminPeminjamanController::class,
+            'pengembalian'
+        ])->name('peminjaman.kembali');
+    });
 
     
     Route::middleware(['can:kelola-buku'])->group(function () {
