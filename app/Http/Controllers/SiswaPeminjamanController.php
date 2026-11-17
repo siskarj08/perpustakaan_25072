@@ -12,7 +12,18 @@ class SiswaPeminjamanController extends Controller
     // Menampilkan riwayat peminjaman siswa
     public function index()
     {
-        return 'Controller riwayat peminjaman berhasil dijalankan.';
+        $anggota = auth()->user()->anggota;
+
+        if (!$anggota) {
+            $peminjamans = collect();
+        } else {
+            $peminjamans = Peminjaman::with('buku')
+                ->where('anggota_id', $anggota->id)
+                ->latest('tanggal_pinjam')
+                ->get();
+        }
+
+        return view('siswa.peminjaman', compact('peminjamans'));
     }
 
     // Memproses peminjaman buku
