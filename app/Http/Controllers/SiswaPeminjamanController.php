@@ -9,17 +9,16 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\View\View;
 
 class SiswaPeminjamanController extends Controller
 {
     // Menampilkan riwayat peminjaman siswa
-    public function index(): View
+    public function index()
     {
-        $anggota = $this->resolveAnggotaFor(auth()->user());
+        $anggota = $this->resolveAnggotaFor(Auth::user());
 
-        $peminjamans = $anggota->peminjamans()
-            ->with('buku')
+        $peminjamans = Peminjaman::with('buku')
+            ->where('anggota_id', $anggota->id)
             ->latest('tanggal_pinjam')
             ->get();
 
@@ -31,7 +30,6 @@ class SiswaPeminjamanController extends Controller
     {
         $anggota = $this->resolveAnggotaFor(Auth::user());
 
-        // Memeriksa apakah buku masih dipinjam oleh siswa
         $sudahPinjam = Peminjaman::where('anggota_id', $anggota->id)
             ->where('buku_id', $buku->id)
             ->whereNull('tanggal_kembali')
@@ -44,7 +42,6 @@ class SiswaPeminjamanController extends Controller
             );
         }
 
-        // Menyimpan data peminjaman
         Peminjaman::create([
             'anggota_id' => $anggota->id,
             'buku_id' => $buku->id,
@@ -56,43 +53,51 @@ class SiswaPeminjamanController extends Controller
             ->route('buku.index')
             ->with(
                 'success',
-                'Buku "'.$buku->judul.'" berhasil dipinjam! Silakan cek riwayat peminjaman.'
+                'Buku "' . $buku->judul . '" berhasil dipinjam! Silakan cek riwayat peminjaman.'
             );
     }
 
+    // Mencari atau membuat data anggota berdasarkan akun siswa
     private function resolveAnggotaFor(User $user): Anggota
     {
-        return DB::transaction(function () use ($user): Anggota {
-            $anggota = $user->anggota()->first();
+        return DB::transaction(function () use ($user) {
+
+            // Cari anggota yang sudah terhubung dengan akun
+            $anggota = Anggota::where('user_id', $user->id)
+                ->first();
 
             if ($anggota) {
                 return $anggota;
             }
 
-            $anggota = Anggota::query()
-                ->where('email', $user->email)
+            // Cari anggota berdasarkan email yang belum terhubung
+            $anggota = Anggota::where('email', $user->email)
                 ->whereNull('user_id')
                 ->first();
 
             if ($anggota) {
-                $anggota->user()->associate($user);
+                $anggota->user_id = $user->id;
                 $anggota->save();
 
                 return $anggota;
             }
 
-            return $user->anggota()->create([
+            // Buat anggota baru jika belum tersedia
+            return Anggota::create([
+                'user_id' => $user->id,
                 'nama' => $user->name,
                 'email' => $user->email,
+                'no_telepon' => null,
             ]);
         });
     }
 
+    // Menampilkan detail peminjaman
     public function show($id)
     {
-        $peminjaman = Peminjaman::findOrFail($id);
+        $peminjaman = Peminjaman::with(['buku', 'anggota'])
+            ->findOrFail($id);
 
-        // Memeriksa hak akses menggunakan Policy
         Gate::authorize('view', $peminjaman);
 
         return view('siswa.detail-peminjaman', compact('peminjaman'));
